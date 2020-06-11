@@ -90,3 +90,48 @@ class Blockchain(object):
         # returns the last block of the blockchain
         return self.chain[-1]
 
+
+app = Flask(__name__)
+
+# generate a globally unique address for this node
+node_identifier = str(uuid4()).replace('-', '')
+
+# instantiate the Blockchain
+blockchain = Blockchain()
+
+#return the entire blockchain
+@app.route('/blockchain', methods['GET'])
+def full_chain():
+    response = {
+        'chain': blockchain.chain,
+        'length': len(blockchain.chain),
+    }
+    return jsonify(response), 200
+
+@app.route('/mine', methods['GET'])
+def mine_block():
+    blockchain.add_transaction(
+        sender="0",
+        recipient=node_identifier,
+        amount=1,
+    )
+    # obtain the hash of last block in the blockchain
+    last_block_hash = blockchain.hash_block(blockchain.last_block)
+
+    # using PoW, get the nonce for the new block to be added
+    # to the blockchain
+    index = len(blockchain.chain)
+    nonce = blockchain.proof_of_work(index, last_block_hash,
+        blockchain.current_transactions)
+
+    # add the new block to the blockchain using the last block
+    # hash and the current nonce
+    block = blockchain.append_block(nonce, last_block_hash)
+    response = {
+        'message': "New Blcok Mined",
+        'index': block['index'],
+        'hash_of_previous_block': block['hash_of_previous_block'],
+        'nonce': block['nonce'],
+        'transactions': block['transactions'],
+    }
+    return jsonify(response), 200

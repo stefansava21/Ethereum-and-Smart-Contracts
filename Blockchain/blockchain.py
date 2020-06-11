@@ -30,8 +30,63 @@ class Blockchain(object):
         # create the genesis block with a specific fixed hash
         # of previous block genesis block starts with index 0
         genesis_hash = self.hash_block("genesis_block")
-        self.append_block(hash_of_previous_block = genesis_hash,
-                          nonce = self.proof_of_work(0, genesis_hash, []))
+        self.append_block
+        (hash_of_previous_block= genesis_hash,
+            nonce=self.proof_of_work(0, genesis_hash, []))
 
-    #use PoW to find the nonce for the current block
-    def proof_of_work
+    # use PoW to find the nonce for the current block
+    def proof_of_work(self, index, hash_of_previous_block, transactions):
+        # try with nonce = 0
+        nonce = 0
+
+        # try hashing the nonce togheter with the hash of the
+        # previous block until it is valid
+        while self.valid_proof
+        (index, hash_of_previous_block, transactions,  nonce) is False:
+            nonce += 1
+
+        return nonce
+
+    def valid_proof(self, index, hash_of_previous_block, transactions, nonce):
+
+        # create a string containing the hash of the previous
+        # block and the block content, including the nonce
+        content =
+        f'{index}{hash_of_previous_block}{transactions}{nonce}'.encode()
+
+        # hash using sha256
+        content_hash = hashlib.sha256(content).hexdigest()
+
+        # check if the hash meets the difficulty target
+        return content_hash[:len(self.difficulty_target)] ==
+        self.difficulty_target
+
+    # creates a new block and adds it to the blockchain
+    def append_block(self, nonce, hash_of_previous_block):
+        block = {
+            'index': len(self.chain),
+            'timestamp': time(),
+            'transactions': self.current_transactions,
+            'nonce': nonce,
+            'hash_of_previous_block': hash_of_previous_block
+        }
+
+        # reset the current list of transactions
+        self.current_transactions = []
+
+        # add the new block to the blockchain
+        self.chain.append(block)
+
+    def add_transaction(self, sender, recipient, amount):
+        self.current_transactions.append({
+            'amount': amount,
+            'recipient': recipient,
+            'sender': sender,
+            })
+        return self.last_block['index']+1
+
+    @property
+    def last_block(self):
+        # returns the last block of the blockchain
+        return self.chain[-1]
+
